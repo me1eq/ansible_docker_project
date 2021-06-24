@@ -1,0 +1,88 @@
+- name : Deploy Docker 4 Container 
+  hosts : ubuntu
+  remote_user : melek
+  become : true
+
+  tasks :
+  
+  - name : Create Network
+    community.docker.docker_network :
+      name : connection 
+      
+  - name : Deploy the Container Apache 
+    community.docker.docker_container:
+        name : me1eq
+        image : me1eq/webserverapache
+        ports : 
+          -  "8081:8081"
+        networks :
+          - name : connection
+        volumes :
+          - /var/run/docker.sock:/var/run/docker.sock
+          - me1eq:/data
+        restart_policy : always 
+
+  - name : Deploy the Container MYSQL
+    community.docker.docker_container :
+      name : db
+      image : mysql:5.7
+      ports :
+      - "4000:4000"
+      networks :
+        - name : connection
+      volumes : 
+        - db:/var/lib/mysql
+      env :  
+        MYSQL_DATABASE : "exampledb"
+        MYSQL_USER : "exampleuser"
+        MYSQL_PASSWORD : "examplepass"
+        MYSQL_RANDOM_ROOT_PASSWORD : "1"
+
+  - name : Deploy the Container Wordpress
+    community.docker.docker_container :
+      name : wordpress
+      image : wordpress:latest
+      ports :
+        - "80:80"
+      networks :
+        - name : connection
+      env :  
+        WORDPRESS_DB_HOST: "db"
+        WORDPRESS_DB_USER: "exampleuser"
+        WORDPRESS_DB_PASSWORD: "examplepass"
+        WORDPRESS_DB_NAME: "exampledb"
+      restart_policy : always  
+
+  - name : Deploy the Container Mongo DB 
+    community.docker.docker_container :
+      name : mongodb
+      image : mongo
+      ports :
+        - "3000:3000"
+      env :
+        login_database : "testdb"
+        login_password : "testpass"
+        mongo_cmd : "mongo"
+      
+        
+
+
+
+
+
+
+
+
+
+
+
+
+          
+
+
+
+
+
+
+
+
